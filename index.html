@@ -4,21 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BeHappy</title>
-<meta name="description" content="Don't Worry, BeHappy. Coming soon.">
-<meta name="theme-color" content="#FFD60A">
+<meta name="description" content="Don’t Worry BeHappy. Coming soon.">
+<meta name="theme-color" content="#FFEA00">
 <meta property="og:title" content="BeHappy">
-<meta property="og:description" content="Don't Worry, BeHappy. Coming soon.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23FFD60A' stroke='%231C1A10' stroke-width='3'/%3E%3Ccircle cx='16.5' cy='19' r='3' fill='%231C1A10'/%3E%3Ccircle cx='31.5' cy='19' r='3' fill='%231C1A10'/%3E%3Cpath d='M12.5 28.5c3 6.6 20 6.6 23 0' fill='none' stroke='%231C1A10' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta property="og:description" content="Don’t Worry BeHappy. Coming soon.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23FFEA00' stroke='%231C1A10' stroke-width='3'/%3E%3Ccircle cx='16.5' cy='19' r='3' fill='%231C1A10'/%3E%3Ccircle cx='31.5' cy='19' r='3' fill='%231C1A10'/%3E%3Cpath d='M12.5 28.5c3 6.6 20 6.6 23 0' fill='none' stroke='%231C1A10' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style>
 /* Layout: 노란 한 화면. 왼쪽 정렬의 큰 두 줄 카피. 부정어(Worry 등)만 바뀌고 BeHappy는 고정되어 한 번씩 튀어 오른다. */
 :root {
-  --yellow: #FFD60A;
+  --yellow: #FFEA00;
   --ink: #1C1A10;
   --ink-soft: rgba(28, 26, 16, 0.5);
   --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Noto Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
   --font-util: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   color-scheme: light;
 }
@@ -52,16 +53,14 @@ body {
 @keyframes pop { 0% { transform: scale(1); } 35% { transform: scale(1.06) rotate(-1.2deg); } 100% { transform: none; } }
 
 /* Finale: 부정어 자리에 웃는 얼굴이 들어온다 */
-.face { display: none; width: 1em; height: 1em; }
-.finale .face { display: block; }
 .finale .txt { display: none; }
-.finale .face .smile { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 0.7s 0.2s ease-out forwards; }
-.finale .face .eye { animation: blink 0.4s 0.9s ease-in-out; transform-box: fill-box; transform-origin: center; }
-@keyframes draw { to { stroke-dashoffset: 0; } }
-@keyframes blink { 50% { transform: scaleY(0.15); } }
+.lets { display: none; }
+.finale .lets { display: block; animation: verbIn 0.35s ease-out both; }
 
-.replay { font: 500 0.8rem var(--font-util); letter-spacing: 0.14em; text-transform: uppercase; background: transparent; color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 10px 18px; cursor: pointer; visibility: hidden; }
-.done .replay { visibility: visible; }
+.replay { font: 500 0.8rem var(--font-util); letter-spacing: 0.14em; text-transform: uppercase; background: transparent; color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 10px 18px; cursor: pointer; visibility: hidden; opacity: 0; transition: opacity 0.4s ease, background 0.15s ease, color 0.15s ease; }
+.done .replay { visibility: visible; opacity: 1; }
+.br { display: grid; justify-items: end; align-items: center; }
+.br > * { grid-area: 1 / 1; }
 .replay:hover { background: var(--ink); color: var(--yellow); }
 
 /* 스크린리더용 전체 목록. 모션 줄이기 설정에서는 화면에도 보인다 */
@@ -70,19 +69,48 @@ body {
 .static .l1 .verb::after { transform: scaleX(1); }
 .static .verb { animation: none; }
 .static .tag { animation: none; }
-.static .finale .face .smile { animation: none; stroke-dashoffset: 0; }
-.static .finale .face .eye { animation: none; }
 @media (prefers-reduced-motion: reduce) {
-  .verb, .tag.pop, .finale .face .smile, .finale .face .eye { animation: none; }
+  .verb, .tag.pop, .finale .lets { animation: none; }
   .verb.struck::after { transition: none; }
 }
-@media (max-width: 480px) { .top, .bottom { font-size: 0.72rem; } }
+
+.top-right { display: flex; align-items: center; gap: 16px; }
+.contact-btn { font: 500 0.8rem var(--font-util); letter-spacing: 0.14em; text-transform: uppercase; background: transparent; color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 9px 16px; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
+.contact-btn:hover { background: var(--ink); color: var(--yellow); }
+.soon { display: inline-flex; align-items: baseline; }
+.dots { display: inline-flex; gap: 0.32em; margin-left: 0.7em; }
+.dots i { width: 0.36em; height: 0.36em; border-radius: 50%; background: currentColor; opacity: 0.2; animation: dot 1.4s ease-in-out infinite; }
+.dots i:nth-child(2) { animation-delay: 0.2s; }
+.dots i:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot { 0%, 60%, 100% { opacity: 0.2; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-0.18em); } }
+
+dialog.contact { border: 0; padding: 0; margin: 0; width: 100%; max-width: none; height: 100%; max-height: none; background: var(--ink); color: var(--yellow); overflow: auto; }
+dialog.contact[open] { display: block; animation: sheetIn 0.35s ease-out both; }
+dialog.contact::backdrop { background: transparent; }
+@keyframes sheetIn { from { opacity: 0; transform: translateY(2%); } to { opacity: 1; transform: none; } }
+.c-inner { min-height: 100%; max-width: 1200px; margin-inline: auto; padding: 20px; display: grid; grid-template-rows: auto 1fr; }
+.c-top { display: flex; justify-content: space-between; align-items: center; }
+.c-top svg { width: 46px; height: 46px; }
+.close-btn { font: 500 0.8rem var(--font-util); letter-spacing: 0.14em; text-transform: uppercase; background: transparent; color: var(--yellow); border: 2px solid var(--yellow); border-radius: 999px; padding: 9px 16px; cursor: pointer; }
+.close-btn:hover { background: var(--yellow); color: var(--ink); }
+dialog.contact :focus-visible { outline-color: var(--yellow); }
+.c-body { display: flex; flex-direction: column; justify-content: center; gap: 28px; padding-block: 32px; min-width: 0; }
+.c-title { margin: 0; font-size: clamp(2.5rem, 11.5vw, 8.6rem); font-weight: 800; font-variation-settings: "wdth" 80; line-height: 1.02; letter-spacing: -0.035em; }
+.c-title .tag2 { display: inline-block; background: var(--yellow); color: var(--ink); padding: 0.02em 0.2em 0.1em; border-radius: 0.16em; font-variation-settings: "wdth" 100; letter-spacing: -0.04em; }
+.c-copy { margin: 0; font: 400 clamp(1.05rem, 2.4vw, 1.4rem)/1.7 var(--font-body); word-break: keep-all; }
+.c-copy span { display: block; }
+.c-mail { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.c-mail a { font: 500 clamp(1.05rem, 4.3vw, 2rem) var(--font-util); color: var(--yellow); text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 2px; overflow-wrap: anywhere; }
+.copy-btn { font: 500 0.8rem var(--font-util); letter-spacing: 0.14em; text-transform: uppercase; background: var(--yellow); color: var(--ink); border: 2px solid var(--yellow); border-radius: 999px; padding: 9px 16px; cursor: pointer; }
+.copy-btn:hover { background: transparent; color: var(--yellow); }
+@media (prefers-reduced-motion: reduce) { .replay { transition: none; } .dots i { animation: none; opacity: 0.6; } dialog.contact[open] { animation: none; } .contact-btn { transition: none; } }
+@media (max-width: 480px) { .top, .bottom { font-size: 0.72rem; } .top-right { gap: 10px; } .contact-btn { padding: 8px 12px; font-size: 0.72rem; } }
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="mark" viewBox="0 0 48 48">
-    <circle cx="24" cy="24" r="22" fill="#FFD60A" stroke="#1C1A10" stroke-width="3"/>
+    <circle cx="24" cy="24" r="22" fill="#FFEA00" stroke="#1C1A10" stroke-width="3"/>
     <circle class="eye" cx="16.5" cy="19" r="3" fill="#1C1A10"/>
     <circle class="eye" cx="31.5" cy="19" r="3" fill="#1C1A10"/>
     <path class="smile" pathLength="1" d="M12.5 28.5c3 6.6 20 6.6 23 0" fill="none" stroke="#1C1A10" stroke-width="3.4" stroke-linecap="round"/>
@@ -92,46 +120,68 @@ body {
 <div class="page" id="page">
   <div class="top">
     <svg id="logo" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="#1C1A10" stroke-linecap="round">
-      <circle cx="24" cy="24" r="22" fill="#FFD60A" stroke-width="3"/>
+      <circle cx="24" cy="24" r="22" fill="#FFEA00" stroke-width="3"/>
       <path id="browL" d="M12.5 14L19.5 14" stroke-width="2.4" opacity="0"/>
       <path id="browR" d="M28.5 14L35.5 14" stroke-width="2.4" opacity="0"/>
       <ellipse id="eyeL" cx="16.5" cy="19" rx="3" ry="3" fill="#1C1A10" stroke="none"/>
       <ellipse id="eyeR" cx="31.5" cy="19" rx="3" ry="3" fill="#1C1A10" stroke="none"/>
       <path id="mouth" d="M12.5 28.5C15.5 35.1 32.5 35.1 35.5 28.5C32.5 35.1 15.5 35.1 12.5 28.5" stroke-width="3.4"/>
     </svg>
-    <span id="count" aria-hidden="true">01 / 14</span>
+    <div class="top-right">
+      <button class="contact-btn" id="openContact" type="button" aria-haspopup="dialog">Contact</button>
+    </div>
   </div>
 
   <main class="stage" id="stage">
     <div class="l1" id="l1" aria-hidden="true">
       <span class="txt">Don’t</span>
-      <span class="txt"><span class="verb" id="verb">Worry</span>,</span>
-      <svg class="face" viewBox="0 0 48 48"><use href="#mark"/></svg>
+      <span class="txt"><span class="verb" id="verb">Worry</span></span>
+      <span class="lets">Let’s</span>
     </div>
     <div class="l2" aria-hidden="true"><span class="tag" id="tag">BeHappy</span></div>
     <ol class="all" id="all">
-      <li>Don’t Worry, BeHappy</li>
-      <li>Don’t Bore, BeHappy</li>
-      <li>Don’t Skip, BeHappy</li>
-      <li>Don’t Panic, BeHappy</li>
-      <li>Don’t Fret, BeHappy</li>
-      <li>Don’t Doubt, BeHappy</li>
-      <li>Don’t Stress, BeHappy</li>
-      <li>Don’t Scroll, BeHappy</li>
-      <li>Don’t Yawn, BeHappy</li>
-      <li>Don’t Sleep, BeHappy</li>
-      <li>Don’t Settle, BeHappy</li>
-      <li>Don’t Fake, BeHappy</li>
-      <li>Don’t Hide, BeHappy</li>
-      <li>Don’t Quit, BeHappy</li>
+      <li>Don’t Worry BeHappy</li>
+      <li>Don’t Bore BeHappy</li>
+      <li>Don’t Skip BeHappy</li>
+      <li>Don’t Panic BeHappy</li>
+      <li>Don’t Fret BeHappy</li>
+      <li>Don’t Doubt BeHappy</li>
+      <li>Don’t Stress BeHappy</li>
+      <li>Don’t Scroll BeHappy</li>
+      <li>Don’t Yawn BeHappy</li>
+      <li>Don’t Sleep BeHappy</li>
+      <li>Don’t Settle BeHappy</li>
+      <li>Don’t Fake BeHappy</li>
+      <li>Don’t Hide BeHappy</li>
+      <li>Don’t Quit BeHappy</li>
     </ol>
   </main>
 
   <div class="bottom">
-    <span>Coming soon</span>
-    <button class="replay" id="replay" type="button">Replay</button>
+    <span class="soon">Coming soon<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></span>
+    <div class="br">
+      <span id="count" aria-hidden="true">01 / 14</span>
+      <button class="replay" id="replay" type="button">Replay</button>
+    </div>
   </div>
 </div>
+
+<dialog class="contact" id="contactDialog" aria-labelledby="cTitle">
+  <div class="c-inner">
+    <div class="c-top">
+      <svg aria-hidden="true" viewBox="0 0 48 48"><use href="#mark"/></svg>
+      <button class="close-btn" id="closeContact" type="button">Close</button>
+    </div>
+    <div class="c-body">
+      <h2 class="c-title" id="cTitle">Let’s <span class="tag2">BeHappy</span></h2>
+      <p class="c-copy"><span>행복해질 준비가 되셨나요?</span><span>캠페인 문의 및 채용문의</span></p>
+      <div class="c-mail">
+        <a id="mailLink" href="mailto:letsbehappy@behappycreative.com">letsbehappy@behappycreative.com</a>
+        <button class="copy-btn" id="copyMail" type="button">Copy</button>
+      </div>
+    </div>
+  </div>
+</dialog>
 
 <script>
 (function () {
@@ -143,6 +193,29 @@ body {
   var tag = document.getElementById('tag');
   var count = document.getElementById('count');
   var timers = [];
+
+  var dlg = document.getElementById('contactDialog');
+  var openBtn = document.getElementById('openContact');
+  var copyBtn = document.getElementById('copyMail');
+  var mail = 'letsbehappy@behappycreative.com';
+  openBtn.addEventListener('click', function () {
+    if (dlg.showModal) { dlg.showModal(); } else { dlg.setAttribute('open', ''); }
+  });
+  document.getElementById('closeContact').addEventListener('click', function () {
+    if (dlg.close) { dlg.close(); } else { dlg.removeAttribute('open'); }
+  });
+  copyBtn.addEventListener('click', function () {
+    var done = function (t) { copyBtn.textContent = t; setTimeout(function () { copyBtn.textContent = 'Copy'; }, 1500); };
+    var pick = function () {
+      try {
+        var r = document.createRange(); r.selectNodeContents(document.getElementById('mailLink'));
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      } catch (e) {}
+      done('Select & copy');
+    };
+    try { navigator.clipboard.writeText(mail).then(function () { done('Copied'); }, pick); }
+    catch (e) { pick(); }
+  });
 
   /* 왼쪽 위 로고 표정. 숫자 30개: 입 12, 왼눈 4, 오른눈 4, 왼눈썹 5, 오른눈썹 5 */
   var NB = [[12.5,14,19.5,14,0],[28.5,14,35.5,14,0]];
