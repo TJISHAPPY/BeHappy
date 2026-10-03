@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BeHappy</title>
+<meta name="description" content="Don't Worry, BeHappy. Coming soon.">
+<meta name="theme-color" content="#FFD60A">
+<meta property="og:title" content="BeHappy">
+<meta property="og:description" content="Don't Worry, BeHappy. Coming soon.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23FFD60A' stroke='%231C1A10' stroke-width='3'/%3E%3Ccircle cx='16.5' cy='19' r='3' fill='%231C1A10'/%3E%3Ccircle cx='31.5' cy='19' r='3' fill='%231C1A10'/%3E%3Cpath d='M12.5 28.5c3 6.6 20 6.6 23 0' fill='none' stroke='%231C1A10' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 노란 한 화면. 왼쪽 정렬의 큰 두 줄 카피. 부정어(Worry 등)만 바뀌고 BeHappy는 고정되어 한 번씩 튀어 오른다. */
+:root {
+  --yellow: #FFD60A;
+  --ink: #1C1A10;
+  --ink-soft: rgba(28, 26, 16, 0.5);
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-util: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: var(--font-display);
+  overflow-x: hidden;
+}
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+
+.page { min-height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding-inline: 20px; padding-block: 20px; max-width: 1200px; margin-inline: auto; }
+.top, .bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-family: var(--font-util); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.top svg { width: 46px; height: 46px; }
+#count { font-variant-numeric: tabular-nums; min-width: 6ch; text-align: right; }
+
+.stage { display: flex; flex-direction: column; justify-content: center; gap: 0.12em; font-size: clamp(2.5rem, 11.5vw, 8.6rem); font-weight: 800; font-variation-settings: "wdth" 80; line-height: 1.02; letter-spacing: -0.035em; padding-block: 32px; min-width: 0; }
+.l1 { display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.28em; text-wrap: balance; }
+.verb { position: relative; display: inline-block; animation: verbIn 0.28s ease-out both; }
+.verb::after { content: ""; position: absolute; left: -0.05em; right: -0.05em; top: 54%; height: 0.085em; background: var(--ink); transform: scaleX(0); transform-origin: left center; }
+.verb.struck { color: var(--ink-soft); }
+.verb.struck::after { transform: scaleX(1); transition: transform 0.28s ease-out; }
+@keyframes verbIn { from { opacity: 0; transform: translateY(0.3em); } to { opacity: 1; transform: none; } }
+
+.l2 { display: block; }
+.tag { display: inline-block; background: var(--ink); color: var(--yellow); padding: 0.02em 0.2em 0.1em; border-radius: 0.16em; font-variation-settings: "wdth" 100; letter-spacing: -0.04em; }
+.tag.pop { animation: pop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1); }
+@keyframes pop { 0% { transform: scale(1); } 35% { transform: scale(1.06) rotate(-1.2deg); } 100% { transform: none; } }
+
+/* Finale: 부정어 자리에 웃는 얼굴이 들어온다 */
+.face { display: none; width: 1em; height: 1em; }
+.finale .face { display: block; }
+.finale .txt { display: none; }
+.finale .face .smile { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 0.7s 0.2s ease-out forwards; }
+.finale .face .eye { animation: blink 0.4s 0.9s ease-in-out; transform-box: fill-box; transform-origin: center; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes blink { 50% { transform: scaleY(0.15); } }
+
+.replay { font: 500 0.8rem var(--font-util); letter-spacing: 0.14em; text-transform: uppercase; background: transparent; color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 10px 18px; cursor: pointer; visibility: hidden; }
+.done .replay { visibility: visible; }
+.replay:hover { background: var(--ink); color: var(--yellow); }
+
+/* 스크린리더용 전체 목록. 모션 줄이기 설정에서는 화면에도 보인다 */
+.all { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; padding: 0; list-style: none; }
+.static .all { position: static; width: auto; height: auto; clip: auto; white-space: normal; font: 500 1.05rem/1.9 var(--font-util); padding-block: 8px 24px; }
+.static .l1 .verb::after { transform: scaleX(1); }
+.static .verb { animation: none; }
+.static .tag { animation: none; }
+.static .finale .face .smile { animation: none; stroke-dashoffset: 0; }
+.static .finale .face .eye { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .verb, .tag.pop, .finale .face .smile, .finale .face .eye { animation: none; }
+  .verb.struck::after { transition: none; }
+}
+@media (max-width: 480px) { .top, .bottom { font-size: 0.72rem; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="22" fill="#FFD60A" stroke="#1C1A10" stroke-width="3"/>
+    <circle class="eye" cx="16.5" cy="19" r="3" fill="#1C1A10"/>
+    <circle class="eye" cx="31.5" cy="19" r="3" fill="#1C1A10"/>
+    <path class="smile" pathLength="1" d="M12.5 28.5c3 6.6 20 6.6 23 0" fill="none" stroke="#1C1A10" stroke-width="3.4" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="page" id="page">
+  <div class="top">
+    <svg id="logo" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="#1C1A10" stroke-linecap="round">
+      <circle cx="24" cy="24" r="22" fill="#FFD60A" stroke-width="3"/>
+      <path id="browL" d="M12.5 14L19.5 14" stroke-width="2.4" opacity="0"/>
+      <path id="browR" d="M28.5 14L35.5 14" stroke-width="2.4" opacity="0"/>
+      <ellipse id="eyeL" cx="16.5" cy="19" rx="3" ry="3" fill="#1C1A10" stroke="none"/>
+      <ellipse id="eyeR" cx="31.5" cy="19" rx="3" ry="3" fill="#1C1A10" stroke="none"/>
+      <path id="mouth" d="M12.5 28.5C15.5 35.1 32.5 35.1 35.5 28.5C32.5 35.1 15.5 35.1 12.5 28.5" stroke-width="3.4"/>
+    </svg>
+    <span id="count" aria-hidden="true">01 / 14</span>
+  </div>
+
+  <main class="stage" id="stage">
+    <div class="l1" id="l1" aria-hidden="true">
+      <span class="txt">Don’t</span>
+      <span class="txt"><span class="verb" id="verb">Worry</span>,</span>
+      <svg class="face" viewBox="0 0 48 48"><use href="#mark"/></svg>
+    </div>
+    <div class="l2" aria-hidden="true"><span class="tag" id="tag">BeHappy</span></div>
+    <ol class="all" id="all">
+      <li>Don’t Worry, BeHappy</li>
+      <li>Don’t Bore, BeHappy</li>
+      <li>Don’t Skip, BeHappy</li>
+      <li>Don’t Panic, BeHappy</li>
+      <li>Don’t Fret, BeHappy</li>
+      <li>Don’t Doubt, BeHappy</li>
+      <li>Don’t Stress, BeHappy</li>
+      <li>Don’t Scroll, BeHappy</li>
+      <li>Don’t Yawn, BeHappy</li>
+      <li>Don’t Sleep, BeHappy</li>
+      <li>Don’t Settle, BeHappy</li>
+      <li>Don’t Fake, BeHappy</li>
+      <li>Don’t Hide, BeHappy</li>
+      <li>Don’t Quit, BeHappy</li>
+    </ol>
+  </main>
+
+  <div class="bottom">
+    <span>Coming soon</span>
+    <button class="replay" id="replay" type="button">Replay</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var words = ["Worry","Bore","Skip","Panic","Fret","Doubt","Stress","Scroll","Yawn","Sleep","Settle","Fake","Hide","Quit"];
+  var n = words.length;
+  var page = document.getElementById('page');
+  var l1 = document.getElementById('l1');
+  var verb = document.getElementById('verb');
+  var tag = document.getElementById('tag');
+  var count = document.getElementById('count');
+  var timers = [];
+
+  /* 왼쪽 위 로고 표정. 숫자 30개: 입 12, 왼눈 4, 오른눈 4, 왼눈썹 5, 오른눈썹 5 */
+  var NB = [[12.5,14,19.5,14,0],[28.5,14,35.5,14,0]];
+  function mouthOf(x0,y0,a1x,a1y,a2x,a2y,x1,y1) { return [x0,y0,a1x,a1y,a2x,a2y,x1,y1,a2x,a2y,a1x,a1y]; }
+  function ex(m, eL, eR, bL, bR) {
+    return m.concat(eL || [16.5,19,3,3], eR || [31.5,19,3,3], bL || NB[0], bR || NB[1]);
+  }
+  var WL = [12.5,14.5,19.5,11,1], WR = [28.5,11,35.5,14.5,1];       // 걱정 눈썹
+  var AL = [12.5,12,19.5,15.5,1], AR = [28.5,15.5,35.5,12,1];       // 안쪽이 내려간 눈썹
+  var FACES = {
+    happy:    ex(mouthOf(12.5,28.5,15.5,35.1,32.5,35.1,35.5,28.5)),
+    worry:    ex(mouthOf(14,32,18,27.5,30,27.5,34,32), [16.5,19.5,3,3.4], [31.5,19.5,3,3.4], WL, WR),
+    bore:     ex(mouthOf(15,31,20,31,28,31,33,31), [16.5,19.5,3.4,1.1], [31.5,19.5,3.4,1.1]),
+    skip:     ex(mouthOf(16,31,21,31,27,31,32,31), [18,19,3,1.6], [33,19,3,1.6]),
+    panic:    ex(mouthOf(24,28,19,28,19,37,24,37).slice(0,8).concat([29,37,29,28]), [16.5,18.5,3.8,4.5], [31.5,18.5,3.8,4.5], [12.5,11.5,19.5,9.5,1], [28.5,9.5,35.5,11.5,1]),
+    fret:     ex(mouthOf(15,31,19,28.5,28,33.5,33,30), [16.5,19.5,3,3.4], [31.5,19.5,3,3.4], WL, WR),
+    doubt:    ex(mouthOf(14,31.5,19,30,27,32.5,34,29.5), [16.5,19,3,3], [31.5,19.5,3,2.2], [12.5,12,19.5,10.5,1], [28.5,14.5,35.5,15,1]),
+    stress:   ex(mouthOf(13,31,19,26,28,36,35,31), [16.5,19.5,3.4,1.3], [31.5,19.5,3.4,1.3], AL, AR),
+    scroll:   ex(mouthOf(17,31,21,31,27,31,31,31), [16.5,17.5,3,3], [31.5,17.5,3,3]),
+    yawn:     ex(mouthOf(24,26.5,17,26.5,17,38.5,24,38.5).slice(0,8).concat([31,38.5,31,26.5]), [16.5,19,3.6,0.9], [31.5,19,3.6,0.9]),
+    sleep:    ex(mouthOf(19,31,22,33.2,26,33.2,29,31), [16.5,19.5,3.6,0.9], [31.5,19.5,3.6,0.9]),
+    settle:   ex(mouthOf(16,31.5,21,29.5,27,29.5,32,31.5), [16.5,19.5,3.2,1.8], [31.5,19.5,3.2,1.8], [12.5,14,19.5,15,1], [28.5,15,35.5,14,1]),
+    fake:     ex(mouthOf(11,28,16,31,32,31,37,28), [16.5,19,3,2.2], [31.5,19,3,2.2]),
+    hide:     ex(mouthOf(17,31.5,21,30,27,30,31,31.5), [13.5,19,3,3], [28.5,19,3,3]),
+    quit:     ex(mouthOf(14,33,18,26.5,30,26.5,34,33), [16.5,19.5,3,3.2], [31.5,19.5,3,3.2], [12.5,13.5,19.5,10.5,1], [28.5,10.5,35.5,13.5,1])
+  };
+  var ORDER = ['worry','bore','skip','panic','fret','doubt','stress','scroll','yawn','sleep','settle','fake','hide','quit'];
+  var el = {
+    mouth: document.getElementById('mouth'),
+    eyeL: document.getElementById('eyeL'), eyeR: document.getElementById('eyeR'),
+    browL: document.getElementById('browL'), browR: document.getElementById('browR')
+  };
+  var cur = FACES.happy.slice();
+  var raf = 0;
+  function paint(v) {
+    var r = function (x) { return Math.round(x * 100) / 100; };
+    el.mouth.setAttribute('d', 'M' + r(v[0]) + ' ' + r(v[1]) + 'C' + r(v[2]) + ' ' + r(v[3]) + ' ' + r(v[4]) + ' ' + r(v[5]) + ' ' + r(v[6]) + ' ' + r(v[7]) + 'C' + r(v[8]) + ' ' + r(v[9]) + ' ' + r(v[10]) + ' ' + r(v[11]) + ' ' + r(v[0]) + ' ' + r(v[1]));
+    [['eyeL', 12], ['eyeR', 16]].forEach(function (p) {
+      var e = el[p[0]], o = p[1];
+      e.setAttribute('cx', r(v[o])); e.setAttribute('cy', r(v[o + 1])); e.setAttribute('rx', r(v[o + 2])); e.setAttribute('ry', r(v[o + 3]));
+    });
+    [['browL', 20], ['browR', 25]].forEach(function (p) {
+      var b = el[p[0]], o = p[1];
+      b.setAttribute('d', 'M' + r(v[o]) + ' ' + r(v[o + 1]) + 'L' + r(v[o + 2]) + ' ' + r(v[o + 3]));
+      b.setAttribute('opacity', r(v[o + 4]));
+    });
+  }
+  function setFace(name, instant) {
+    var to = FACES[name], from = cur.slice(), t0 = null;
+    cancelAnimationFrame(raf);
+    if (instant) { cur = to.slice(); paint(cur); return; }
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var k = Math.min(1, (ts - t0) / 200), e = 1 - Math.pow(1 - k, 3);
+      cur = from.map(function (a, i) { return a + (to[i] - a) * e; });
+      paint(cur);
+      if (k < 1) raf = requestAnimationFrame(step);
+    }
+    raf = requestAnimationFrame(step);
+  }
+
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function clearAll() { timers.forEach(clearTimeout); timers = []; }
+  function pad(x) { return (x < 10 ? '0' : '') + x; }
+  // 처음엔 천천히, 뒤로 갈수록 빠르게
+  function dur(i) { return Math.round(2600 - 1500 * (i / (n - 1))); }
+
+  function popTag() {
+    tag.classList.remove('pop');
+    void tag.offsetWidth;
+    tag.classList.add('pop');
+  }
+
+  function show(i) {
+    var d = dur(i);
+    verb.textContent = words[i];
+    verb.classList.remove('struck');
+    verb.style.animation = 'none';
+    void verb.offsetWidth;
+    verb.style.animation = '';
+    count.textContent = pad(i + 1) + ' / ' + n;
+    setFace(ORDER[i], i === 0);
+    later(function () { verb.classList.add('struck'); }, d * 0.4);
+    later(function () { popTag(); setFace('happy'); }, d * 0.62);
+    later(function () { i + 1 < n ? show(i + 1) : finale(); }, d);
+  }
+
+  function finale() {
+    l1.classList.add('finale');
+    page.classList.add('done');
+    count.textContent = '';
+    popTag();
+    setFace('happy');
+  }
+
+  function start() {
+    clearAll();
+    l1.classList.remove('finale');
+    page.classList.remove('done');
+    tag.classList.remove('pop');
+    show(0);
+  }
+
+  document.getElementById('replay').addEventListener('click', start);
+
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  if (reduce) {
+    document.body.classList.add('static');
+    verb.classList.add('struck');
+    finale();
+    count.textContent = '';
+  } else {
+    start();
+  }
+})();
+</script>
+</body>
+</html>
