@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Work — BeHappy</title>
+<meta name="description" content="Happy Work will Happen.">
+<meta name="theme-color" content="#1C1A10">
+<meta property="og:title" content="Work — BeHappy">
+<meta property="og:description" content="Happy Work will Happen.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Instrument+Sans:wdth,wght@75..100,400..700&family=Noto+Sans+KR:wght@300..700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.soon { min-height: calc(100vh - 88px - 220px); min-height: calc(100svh - 88px - 220px); display: flex; align-items: center; justify-content: center; padding-block: 64px; text-align: center; }
+.soon h1 { color: #FFFFFF; margin: 0; font: 600 clamp(1.5rem, 3.2vw, 2.6rem)/1.2 var(--latin); font-variation-settings: "wdth" 85; letter-spacing: -0.035em; white-space: nowrap; }
+/* 글자가 하나씩 튀어 오르며 등장하고, 몇 초마다 파도타기하듯 한 번씩 출렁인다. 끝의 노란 점 세 개는 '곧 일어날 일'을 기다리는 표시 */
+.soon .ch { display: inline-block; white-space: pre; animation: rise 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) both; animation-delay: calc(var(--i) * 0.035s); }
+@keyframes rise { from { opacity: 0; transform: translateY(0.6em) scale(0.8); } to { opacity: 1; transform: none; } }
+.soon.wave .ch { animation: hop 0.55s cubic-bezier(0.3, 0, 0.3, 1) both; animation-delay: calc(var(--i) * 0.04s); }
+@keyframes hop { 0%, 100% { transform: none; } 40% { transform: translateY(-0.28em); } 70% { transform: translateY(0.04em); } }
+.soon .ch.y { color: var(--zing); }
+.waiting { display: inline-flex; gap: 0.16em; margin-left: 0.12em; vertical-align: baseline; }
+.waiting i { width: 0.16em; height: 0.16em; border-radius: 50%; background: var(--zing); animation: wait 1.4s ease-in-out infinite; }
+.waiting i:nth-child(2) { animation-delay: 0.18s; }
+.waiting i:nth-child(3) { animation-delay: 0.36s; }
+@keyframes wait { 0%, 60%, 100% { opacity: 0.25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-0.22em); } }
+@media (prefers-reduced-motion: reduce) { .soon .ch, .soon.wave .ch, .waiting i { animation: none; } }
+</style>
+</head>
+<body data-page="work" class="dark">
+<main class="wrap soon" id="soon">
+  <h1 id="line" aria-label="Happy Work will Happen">Happy Work will Happen</h1>
+</main>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  var h = document.getElementById('line'), soon = document.getElementById('soon'), text = h.textContent;
+  h.innerHTML = text.split('').map(function (c, i) {
+    return '<span class="ch" aria-hidden="true" style="--i:' + i + '">' + c + '</span>';
+  }).join('') + '<span class="waiting" aria-hidden="true"><i></i><i></i><i></i></span>';
+  /* 4.5초마다 파도 한 번 */
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  if (reduce) { return; }
+  setInterval(function () { soon.classList.remove('wave'); void soon.offsetWidth; soon.classList.add('wave'); }, 4500);
+})();
+</script>
+</body>
+</html>

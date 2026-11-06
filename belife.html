@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Belife — BeHappy</title>
+<meta name="description" content="Happy work makes Happy results. BeHappy는 행복을 느끼는 능력이야말로 인간만의 고유하고 위대한 힘이라 믿습니다.">
+<meta name="theme-color" content="#1C1A10">
+<meta property="og:title" content="Belife — BeHappy">
+<meta property="og:description" content="Happy work makes Happy results.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Instrument+Sans:wdth,wght@75..100,400..700&family=Noto+Sans+KR:wght@300..700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="assets/belife/qmark.webp">
+<link rel="preload" as="image" href="assets/belife/curious-smile.webp">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+/* 스크롤하면 메시지가 하나씩 읽히고, 왼쪽의 3D 일러스트가 메시지에 맞춰 바뀐다 */
+.nav { position: sticky; top: 0; background: linear-gradient(var(--ink) 60%, rgba(28, 26, 16, 0)); }
+.story { --gap: clamp(24px, 4vw, 72px); position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--gap); }
+/* 단락마다 그림이 왼쪽 ↔ 오른쪽으로 자리를 바꾼다 (--vx: 0 왼쪽, 1 오른쪽) */
+.story > .visual { grid-column: 1; grid-row: 1; transform: translateX(calc(var(--vx, 0) * (100% + var(--gap)))); }
+.story > .steps { grid-column: 1 / -1; grid-row: 1; }
+.step { padding-left: calc(50% + var(--gap) / 2); }
+.step.alt { padding-left: 0; padding-right: calc(50% + var(--gap) / 2); }
+.visual { position: sticky; top: 88px; height: calc(100vh - 88px); height: calc(100svh - 88px); display: grid; place-items: center; pointer-events: none; }
+.stage { position: relative; width: min(100%, calc((100vh - 88px) * 0.9), 640px); aspect-ratio: 1; perspective: 900px; }
+.tilt { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.float { position: absolute; inset: 0; animation: float 7s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(-1.2%); } 50% { transform: translateY(1.2%); } }
+.art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; will-change: transform, opacity; }
+.art:first-child { opacity: 1; }
+/* 바닥에 깔리는 은은한 빛 */
+.glow { position: absolute; left: 12%; right: 12%; bottom: 2%; height: 14%; background: radial-gradient(closest-side, rgba(255, 234, 0, 0.16), rgba(255, 234, 0, 0)); filter: blur(8px); }
+
+.steps { list-style: none; margin: 0; padding: 0; }
+.step { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding-block: 12vh; will-change: opacity, transform; }
+.step:first-child { margin-top: -88px; }
+.step h2 { margin: 0 0 clamp(20px, 2.4vw, 32px); font: 600 clamp(2.5rem, 4.8vw, 5rem)/1 var(--latin); font-variation-settings: "wdth" 80; letter-spacing: -0.045em; text-wrap: balance; }
+.step h2.kr { font: 700 clamp(1.9rem, 3.3vw, 3.2rem)/1.3 var(--kr); letter-spacing: -0.05em; word-break: keep-all; }
+.step p { margin: 0; max-width: 24em; font: 400 clamp(1.08rem, 1.45vw, 1.32rem)/1.8 var(--kr); letter-spacing: -0.02em; word-break: keep-all; color: rgba(255, 255, 255, 0.78); }
+.step p + p { margin-top: 0.4em; }
+/* 강조: 노란색으로 핵심 문구를 짚는다 */
+.step p strong { color: #FFFFFF; font-weight: 700; padding: 0.02em 0.18em 0.06em; margin: 0 0.04em; border-radius: 0.18em;
+  background: linear-gradient(var(--zing), var(--zing)) no-repeat left center / 0% 100%;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  transition: background-size 0.75s cubic-bezier(0.65, 0, 0.25, 1) 0.2s, color 0.25s ease 0.45s; }
+/* 단락이 화면 가운데로 오면 노란 형광펜이 왼쪽에서 오른쪽으로 칠해지며 글자가 검정으로 바뀐다 */
+.step.on p strong { background-size: 100% 100%; color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .step p strong { transition: none; } }
+.step p .nw { white-space: nowrap; }
+@media (max-width: 420px) { .step p .nw { white-space: normal; } }
+
+/* 첫 단락: 물음표는 둥실둥실 흔들리고, 스마일은 고개를 갸웃한다 */
+.scene1 { position: absolute; inset: 0; }
+.scene1 .qm { position: absolute; left: 5%; top: 1%; width: 42%; height: auto; transform-origin: 50% 70%; animation: qmFloat 6.4s ease-in-out infinite; }
+@keyframes qmFloat {
+  0%   { transform: translate(0, 0) rotate(-4deg); }
+  25%  { transform: translate(1.5%, -3.5%) rotate(1deg); }
+  50%  { transform: translate(0, -5%) rotate(5deg); }
+  75%  { transform: translate(-1.5%, -2%) rotate(0deg); }
+  100% { transform: translate(0, 0) rotate(-4deg); }
+}
+.scene1 .sm-wrap { position: absolute; right: 2%; bottom: 6%; width: 50%; aspect-ratio: 745 / 738; }
+.scene1 .sm { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 92%; animation: tilt 5.2s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+/* 갸웃: 왼쪽으로 기울며 멈칫 → 반대로 살짝 → 다시 물음표 쪽으로 */
+@keyframes tilt {
+  0%, 8%   { transform: rotate(0deg) translateY(0); }
+  20%      { transform: rotate(-13deg) translate(-2%, -1.5%); }
+  24%      { transform: rotate(-10deg) translate(-1.5%, -1%); }
+  44%      { transform: rotate(-11deg) translate(-1.5%, -1%); }
+  58%      { transform: rotate(7deg) translate(1%, -2.5%); }
+  62%      { transform: rotate(5deg) translate(0.8%, -1.6%); }
+  80%      { transform: rotate(6deg) translate(0.8%, -1.8%); }
+  92%, 100% { transform: rotate(0deg) translateY(0); }
+}
+.scene1 .sm-shadow { position: absolute; left: 14%; right: 14%; bottom: -5%; height: 12%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 170, 0, 0.32), rgba(255, 170, 0, 0)); filter: blur(6px); animation: shadowTilt 5.2s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+@keyframes shadowTilt {
+  0%, 8%, 92%, 100% { transform: translateX(0) scaleX(1); opacity: 1; }
+  20%, 44% { transform: translateX(-4%) scaleX(0.94); opacity: 0.85; }
+  58%, 80% { transform: translateX(3%) scaleX(0.92); opacity: 0.8; }
+}
+/* 둘째 단락: 꽃은 바람에 살랑이고, 스마일은 꽃 쪽으로 기울며 신나게 통통 튀고, 하트가 피어오른다 */
+.scene2 { position: absolute; inset: 0; }
+.scene2 .fl { position: absolute; left: 3%; bottom: 13%; width: 44%; height: auto; transform-origin: 46% 100%; animation: sway 4.6s ease-in-out infinite; }
+@keyframes sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(5deg); }
+}
+.scene2 .hp-wrap { position: absolute; right: 2%; bottom: 13%; width: 47%; aspect-ratio: 1; transform: rotate(-7deg); transform-origin: 50% 100%; }
+.scene2 .hp { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 100%; animation: hop 1.6s cubic-bezier(0.33, 0, 0.3, 1) infinite; }
+@keyframes hop {
+  0%   { transform: translateY(0) scale(1.05, 0.95); }
+  12%  { transform: translateY(0) scale(0.97, 1.03); }
+  40%  { transform: translateY(-11%) scale(1, 1) rotate(-3deg); }
+  62%  { transform: translateY(0) scale(1, 1); }
+  70%  { transform: translateY(0) scale(1.06, 0.94); }
+  82%  { transform: translateY(-2%) scale(0.99, 1.01); }
+  100% { transform: translateY(0) scale(1.05, 0.95); }
+}
+.scene2 .sm-shadow { animation: hopShadow 1.6s cubic-bezier(0.33, 0, 0.3, 1) infinite; }
+@keyframes hopShadow {
+  0%, 62%, 100% { transform: scaleX(1); opacity: 1; }
+  40% { transform: scaleX(0.78); opacity: 0.55; }
+}
+.scene2 .ht { position: absolute; width: 22%; height: auto; left: 36%; top: -14%; opacity: 0; animation: heart 3.6s ease-out infinite; }
+.scene2 .h2 { width: 16%; left: 8%; top: -6%; animation-delay: 1.2s; }
+.scene2 .h3 { width: 13%; left: 70%; top: -4%; animation-delay: 2.4s; }
+@keyframes heart {
+  0%   { opacity: 0; transform: translate(0, 30%) scale(0.3) rotate(-10deg); }
+  15%  { opacity: 1; transform: translate(-6%, -10%) scale(1.05) rotate(6deg); }
+  22%  { transform: translate(-4%, -20%) scale(0.95) rotate(-4deg); }
+  75%  { opacity: 1; transform: translate(10%, -110%) scale(0.95) rotate(8deg); }
+  100% { opacity: 0; transform: translate(-6%, -150%) scale(0.5) rotate(-6deg); }
+}
+
+/* 셋째 단락: 막대가 차례로 솟고 → 화살표가 뻗고 → 폭죽이 터지며 스마일이 폴짝 뛴다 */
+.scene3 { position: absolute; inset: 0; }
+.scene3 .bars { position: absolute; left: 5%; top: 27%; width: 56%; }
+.scene3 .bar { position: absolute; height: auto; transform-origin: 50% 100%; }
+.scene3 .arrow { position: absolute; left: 3%; top: 7%; width: 58%; height: auto; }
+.scene3 .popper { position: absolute; left: 0; bottom: 2%; width: 28%; height: auto; transform: scaleX(-1); transform-origin: 30% 80%; }
+.scene3 .ps-wrap { position: absolute; right: 0; bottom: 5%; width: 41%; aspect-ratio: 703 / 753; }
+.scene3 .ps { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 95%; }
+.scene3 .sm-shadow { bottom: -3%; }
+.scene3 .confetti { position: absolute; inset: 0; pointer-events: none; }
+.scene3 .cf { position: absolute; display: block; transform: translate(-50%, -50%); }
+.scene3 .cf img { display: block; width: 100%; height: auto; }
+
+/* 재생 전 상태 (스크롤로 들어오기 전) */
+.scene3:not(.play) .bar { transform: scaleY(0); }
+.scene3:not(.play) .arrow { clip-path: inset(0 100% 0 0); }
+.scene3:not(.play) .cf { opacity: 0; }
+
+.scene3.play .bar { animation: grow 0.75s cubic-bezier(0.25, 1.45, 0.45, 1) both; }
+.scene3.play .b2 { animation-delay: 0.14s; }
+.scene3.play .b3 { animation-delay: 0.28s; }
+.scene3.play .b4 { animation-delay: 0.42s; }
+@keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.scene3.play .arrow { animation: draw 0.85s cubic-bezier(0.55, 0, 0.25, 1) 0.85s both; }
+@keyframes draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.scene3.play .popper { animation: pop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1) 1.65s both, wobble 3.2s ease-in-out 2.4s infinite; }
+@keyframes pop {
+  0% { transform: scaleX(-1) rotate(0); }
+  30% { transform: scaleX(-0.88) scaleY(0.9) rotate(-8deg); }
+  60% { transform: scaleX(-1.08) scaleY(1.08) rotate(6deg); }
+  100% { transform: scaleX(-1) rotate(0); }
+}
+@keyframes wobble { 0%, 100% { transform: scaleX(-1) rotate(0); } 50% { transform: scaleX(-1) rotate(-4deg); } }
+.scene3.play .ps { animation: joy 0.8s cubic-bezier(0.33, 0, 0.3, 1) 1.65s both, party 2.4s ease-in-out 2.45s infinite; }
+@keyframes joy {
+  0% { transform: translateY(0) scale(1); }
+  15% { transform: translateY(0) scale(1.08, 0.9); }
+  45% { transform: translateY(-20%) scale(0.96, 1.05) rotate(-8deg); }
+  75% { transform: translateY(0) scale(1.07, 0.93) rotate(0); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes party {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  25% { transform: rotate(-5deg) translateY(-3%); }
+  50% { transform: rotate(0) translateY(0); }
+  75% { transform: rotate(5deg) translateY(-3%); }
+}
+.scene3.play .cf { animation: burst 0.9s cubic-bezier(0.15, 0.7, 0.3, 1) calc(1.7s + var(--i) * 0.035s) both; }
+@keyframes burst {
+  from { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.2) rotate(var(--r)); }
+  20% { opacity: 1; }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
+}
+.scene3.play .cf img { animation: drift 3.8s ease-in-out calc(2.6s + var(--i) * 0.2s) infinite; }
+@keyframes drift {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-14%) rotate(9deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene3 .bar, .scene3 .arrow, .scene3 .cf, .scene3 .ps, .scene3 .popper, .scene3 .cf img { animation: none !important; }
+  .scene3:not(.play) .bar { transform: none; }
+  .scene3:not(.play) .arrow { clip-path: none; }
+  .scene3:not(.play) .cf { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) { .scene2 .fl, .scene2 .hp, .scene2 .sm-shadow, .scene2 .ht { animation: none; } .scene2 .h1 { opacity: 1; } .scene1 .qm, .scene1 .sm, .scene1 .sm-shadow { animation: none; } }
+
+@media (max-width: 600px) {
+  .story { grid-template-columns: 1fr; }
+  .story > .visual { grid-row: 1; transform: none; }
+  .story > .steps { grid-column: 1; grid-row: 2; }
+  .step, .step.alt { padding-left: 0; padding-right: 0; }
+  .visual { top: 64px; height: 50vh; height: 50svh; margin-top: 0; z-index: 0; }
+  .stage { width: min(84vw, 46vh); }
+  .steps { position: relative; z-index: 1; margin-top: -50vh; margin-top: -50svh; }
+  .step { min-height: 90vh; min-height: 90svh; justify-content: flex-end; padding-block: 0 14vh; }
+  .step:first-child { margin-top: 0; }
+  .step h2, .step p { text-shadow: 0 0 24px var(--ink), 0 0 2px var(--ink); }
+}
+@media (prefers-reduced-motion: reduce) { .float { animation: none; } }
+</style>
+</head>
+<body data-page="belife" class="dark">
+<main class="wrap story" id="story">
+  <div class="visual" aria-hidden="true">
+    <div class="stage">
+      <div class="glow"></div>
+      <div class="tilt" id="tilt">
+        <div class="float">
+          <div class="art scene1">
+            <img class="qm" src="assets/belife/qmark.webp" alt="">
+            <div class="sm-wrap">
+              <div class="sm-shadow"></div>
+              <img class="sm" src="assets/belife/curious-smile.webp" alt="">
+            </div>
+          </div>
+          <div class="art scene2">
+            <img class="fl" src="assets/belife/flower.webp" alt="" loading="lazy">
+            <div class="hp-wrap">
+              <div class="sm-shadow"></div>
+              <img class="hp" src="assets/belife/happy-smile.webp" alt="" loading="lazy">
+              <img class="ht h1" src="assets/belife/heart.webp" alt="" loading="lazy">
+              <img class="ht h2" src="assets/belife/heart.webp" alt="" loading="lazy">
+              <img class="ht h3" src="assets/belife/heart.webp" alt="" loading="lazy">
+            </div>
+          </div>
+          <div class="art scene3">
+            <div class="bars" style="aspect-ratio:802/583"><img class="bar b1" src="assets/belife/bar-1.webp" alt="" loading="lazy" style="left:0.0%;top:47.51%;width:23.69%"><img class="bar b2" src="assets/belife/bar-2.webp" alt="" loading="lazy" style="left:24.31%;top:33.45%;width:24.19%"><img class="bar b3" src="assets/belife/bar-3.webp" alt="" loading="lazy" style="left:49.13%;top:19.21%;width:24.31%"><img class="bar b4" src="assets/belife/bar-4.webp" alt="" loading="lazy" style="left:74.56%;top:0.0%;width:25.44%"></div>
+            <img class="arrow" src="assets/belife/arrow.webp" alt="" loading="lazy">
+            <img class="popper" src="assets/belife/popper.webp" alt="" loading="lazy">
+            <div class="ps-wrap"><div class="sm-shadow"></div><img class="ps" src="assets/belife/party-smile.webp" alt="" loading="lazy"></div>
+            <div class="confetti"><span class="cf" style="left:4.42%;top:29.37%;width:4.86%;--i:0"><img src="assets/belife/confetti-1.webp" alt="" loading="lazy"></span><span class="cf" style="left:21.39%;top:15.82%;width:14.03%;--i:1"><img src="assets/belife/confetti-4.webp" alt="" loading="lazy"></span><span class="cf" style="left:30.17%;top:80.07%;width:6.9%;--i:2"><img src="assets/belife/confetti-6.webp" alt="" loading="lazy"></span><span class="cf" style="left:42.12%;top:5.92%;width:6.68%;--i:3"><img src="assets/belife/confetti-7.webp" alt="" loading="lazy"></span><span class="cf" style="left:43.88%;top:36.2%;width:5.41%;--i:4"><img src="assets/belife/confetti-8.webp" alt="" loading="lazy"></span><span class="cf" style="left:51.96%;top:72.89%;width:6.79%;--i:5"><img src="assets/belife/confetti-9.webp" alt="" loading="lazy"></span><span class="cf" style="left:55.82%;top:86.75%;width:4.97%;--i:6"><img src="assets/belife/confetti-10.webp" alt="" loading="lazy"></span><span class="cf" style="left:59.84%;top:20.53%;width:7.29%;--i:7"><img src="assets/belife/confetti-11.webp" alt="" loading="lazy"></span><span class="cf" style="left:77.21%;top:6.48%;width:5.52%;--i:8"><img src="assets/belife/confetti-13.webp" alt="" loading="lazy"></span><span class="cf" style="left:85.74%;top:25.1%;width:7.62%;--i:9"><img src="assets/belife/confetti-15.webp" alt="" loading="lazy"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h1 class="sr">Belife: BeHappy의 비전과 철학</h1>
+  <ol class="steps">
+    <li class="step">
+      <h2 class="kr">AI 시대, 인간만의 고유함은 무엇일까요?</h2>
+      <p>BeHappy는 <strong>행복을 느끼는 능력</strong>이야말로 인간만의 고유하고 위대한 힘이라 믿습니다.</p>
+    </li>
+    <li class="step alt" data-side="1">
+      <h2>What makes you happy?</h2>
+      <p><strong>무엇이 사람들을 행복하게 하는가?</strong><br>BeHappy는 여기에서 출발합니다.</p>
+      <p>지루하고 뻔한 캠페인이 아닌<br>사람들을 행복하게 하는 캠페인을 만듭니다.</p>
+    </li>
+    <li class="step">
+      <h2>Happy work makes Happy results</h2>
+      <p>BeHappy는 사람들을 행복하게 하는 일이<br>행복한 결과로 이어진다고 믿습니다.</p>
+      <p>우리는 사람들을 행복하게 하는,<br><span class="nw">그래서 <strong>브랜드를 행복하게 하는 캠페인</strong>을 만듭니다.</span></p>
+    </li>
+  </ol>
+</main>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  try { if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; } } catch (e) {}
+  if (!location.hash) { window.scrollTo(0, 0); }
+  var steps = [].slice.call(document.querySelectorAll('.step'));
+  var arts = [].slice.call(document.querySelectorAll('.art'));
+  var tilt = document.getElementById('tilt');
+  var story = document.getElementById('story');
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+
+  /* 각 메시지가 화면 가운데에 얼마나 가까운지(0~1)로 글과 그림을 함께 움직인다 */
+  function update() {
+    var vh = window.innerHeight, small = window.innerWidth <= 600, mid = small ? vh * 0.72 : vh / 2, pos = 0;
+    steps.forEach(function (s, i) {
+      var r = s.getBoundingClientRect();
+      var c = r.top + r.height / 2;
+      var off = (c - mid) / vh;            // 가운데 0, 위로 지나가면 음수
+      if (i === 0) { off = Math.min(0, -window.scrollY / vh); }  // 첫 메시지는 처음부터 또렷하게, 스크롤하면 흐려진다
+      var vis = clamp(1 - Math.abs(off) * 1.9, 0, 1);
+      if (small) {
+        /* 모바일: 글 덩어리의 실제 위치로 판단. 화면 아래쪽에서 또렷해져서 화면 중앙보다 위로 올라가야 흐려진다 */
+        var kids = s.children, t0 = kids[0].getBoundingClientRect().top, t1 = kids[kids.length - 1].getBoundingClientRect().bottom;
+        var tc = (t0 + t1) / 2 / vh;
+        vis = tc > 0.5 ? clamp((1.02 - tc) / 0.14, 0, 1) : clamp((tc - 0.18) / 0.2, 0, 1);
+      }
+      s.style.opacity = reduce ? 1 : (0.08 + 0.92 * vis).toFixed(3);
+      if (vis > 0.55) { s.classList.add('on'); } else if (vis < 0.15) { s.classList.remove('on'); }
+      s.style.transform = reduce ? '' : 'translateY(' + (off * 60).toFixed(1) + 'px)';
+      if (off <= 0) { pos = i - off; }
+    });
+    var p = clamp(pos, 0, steps.length - 1);
+    var side = steps.map(function (s) { return s.classList.contains('alt') ? 1 : 0; });
+    var i0 = Math.floor(p), i1 = Math.min(i0 + 1, steps.length - 1), t = clamp((p - i0 - 0.3) / 0.4, 0, 1);
+    t = t * t * (3 - 2 * t);
+    story.style.setProperty('--vx', (side[i0] + (side[i1] - side[i0]) * t).toFixed(3));
+    arts.forEach(function (a, i) {
+      var d = p - i, w = clamp((0.5 - Math.abs(d)) / 0.22, 0, 1);
+      if (a.classList.contains('scene3')) {
+        if (w > 0.6 && !a.classList.contains('play')) { aimConfetti(a); a.classList.add('play'); }
+        else if (w === 0 && a.classList.contains('play')) { a.classList.remove('play'); }
+      }
+      a.style.opacity = w.toFixed(3);
+      a.style.transform = reduce ? '' : 'translateY(' + (-d * 18).toFixed(2) + '%) rotate(' + (-d * 14).toFixed(2) + 'deg) scale(' + (0.82 + 0.18 * w).toFixed(3) + ')';
+    });
+  }
+  /* 색종이가 폭죽 입구에서 터져 나오도록 조각마다 출발 위치를 계산한다 */
+  function aimConfetti(scene) {
+    var box = scene.getBoundingClientRect(), ox = 0.115 * box.width, oy = 0.81 * box.height;
+    [].forEach.call(scene.querySelectorAll('.cf'), function (c, k) {
+      var x = parseFloat(c.style.left) / 100 * box.width, y = parseFloat(c.style.top) / 100 * box.height;
+      c.style.setProperty('--dx', (ox - x).toFixed(1) + 'px');
+      c.style.setProperty('--dy', (oy - y).toFixed(1) + 'px');
+      c.style.setProperty('--r', (k % 2 ? 1 : -1) * (90 + k * 23) + 'deg');
+    });
+  }
+  var ticking = false;
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(function () { ticking = false; update(); }); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+
+  /* 마우스를 따라 일러스트가 살짝 기울어진다 */
+  if (!reduce && window.matchMedia('(pointer: fine)').matches) {
+    window.addEventListener('pointermove', function (e) {
+      var x = e.clientX / window.innerWidth - 0.5, y = e.clientY / window.innerHeight - 0.5;
+      tilt.style.transform = 'rotateY(' + (x * 14).toFixed(2) + 'deg) rotateX(' + (-y * 10).toFixed(2) + 'deg)';
+    });
+  }
+})();
+</script>
+</body>
+</html>
