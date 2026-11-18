@@ -10,7 +10,13 @@
     ],
     biz: 'letsbehappy@behappycreative.com',
     job: 'happiz@behappycreative.com',
-    addr: '서울 성동구 아차산로 126, 더리브세종타워 606호'
+    addr: '서울 성동구 아차산로 126, 더리브세종타워 606호',
+    company: '주식회사 비해피크리에이티브',
+    companyEn: 'BeHappy Creative Co., Ltd.',
+    ceo: '윤태진',
+    footAddr: '서울 성동구 성수동2가 273-52 더리브세종타워 6F',
+    bizNo: '773-86-04020',
+    instagram: 'https://www.instagram.com/behappy_seoul/'
   };
   /* 어느 메뉴로 들어오든 항상 페이지 맨 위(첫 단락)부터 보이게 한다.
      브라우저가 예전 스크롤 위치를 되살리거나, 뒤로 가기로 캐시된 페이지가 열려도 맨 위로 */
@@ -108,8 +114,16 @@
   if (page !== 'home') {
     document.body.appendChild(h(
       '<footer class="foot"><div class="wrap grid">' +
-        '<div class="f1">' + SITE.addr + '</div>' +
-        '<div class="f4">© ' + new Date().getFullYear() + ' BeHappy</div>' +
+        '<div class="f1"><b>' + SITE.company + '</b>' + SITE.companyEn + '</div>' +
+        '<div class="f2">대표자 ' + SITE.ceo + '<br>' + SITE.footAddr + '<br>사업자등록번호 ' + SITE.bizNo + '</div>' +
+        '<div class="f3">' +
+          '<span class="fk">Campaign</span> <a href="mailto:' + SITE.biz + '">' + SITE.biz + '</a><br>' +
+          '<span class="fk">Recruit</span> <a href="mailto:' + SITE.job + '">' + SITE.job + '</a>' +
+          '<a class="ig" href="' + SITE.instagram + '" target="_blank" rel="noopener" aria-label="BeHappy 인스타그램 (새 창)" title="Instagram">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+              '<rect x="3" y="3" width="18" height="18" rx="5.2"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.4" cy="6.6" r="0.7" fill="currentColor" stroke="none"/>' +
+            '</svg></a>' +
+        '</div>' +
       '</div></footer>'
     ));
   }

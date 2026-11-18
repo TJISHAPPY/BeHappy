@@ -95,10 +95,14 @@ dialog.sheet::backdrop { background: transparent; }
 .foot { border-top: 1px solid var(--line); margin-top: clamp(40px, 6vw, 80px); }
 .foot .grid { padding-block: 32px 32px; row-gap: 28px; font: 400 14px/1.75 var(--kr); color: var(--graphite); align-items: start; }
 .foot .brand { width: 112px; }
-.foot .f1 { grid-column: 1 / span 8; }
-.foot .f2 { grid-column: 5 / span 3; }
-.foot .f3 { grid-column: 8 / span 3; }
-.foot .f4 { grid-column: 9 / span 4; text-align: right; align-self: end; }
+.foot .f1 { grid-column: 1 / span 4; }
+.foot .f2 { grid-column: 5 / span 4; }
+.foot .f3 { grid-column: 9 / span 4; }
+.foot .f4 { grid-column: 1 / -1; padding-top: 20px; border-top: 1px solid var(--line); }
+.foot .fk { display: inline-block; min-width: 5.6em; }
+.foot a.ig { display: grid; place-items: center; width: 44px; height: 44px; margin: 14px 0 0 -10px; border-radius: 50%; color: var(--ink); }
+.foot a.ig svg { width: 24px; height: 24px; }
+.foot a.ig:hover { background: var(--zing); color: var(--ink); text-decoration: none; }
 .foot a { color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
 .foot a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .foot b { display: block; font-weight: 500; color: var(--ink); }
@@ -123,6 +127,7 @@ body.dark .menu a:hover { color: var(--zing); }
 body.dark .menu a:hover:not([aria-current="page"]) { background-size: 0 1.5px; }
 body.dark .menu a[aria-current="page"]:hover { background-image: linear-gradient(var(--zing), var(--zing)); }
 body.dark .foot a:hover { color: var(--zing); text-decoration: none; }
+body.dark .foot a.ig:hover { background: var(--zing); color: var(--ink); }
 
 /* 커서: 기본 스마일, 누를 수 있는 곳에서는 활짝 웃는 스마일 (터치 기기에서는 적용되지 않음) */
 html { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='21.5' fill='%23FFEA00' stroke='%231C1A10' stroke-width='3'/%3E%3Ccircle cx='16.5' cy='19' r='3.2' fill='%231C1A10'/%3E%3Ccircle cx='31.5' cy='19' r='3.2' fill='%231C1A10'/%3E%3Cpath d='M12.5 28.5c3 6.6 20 6.6 23 0' fill='none' stroke='%231C1A10' stroke-width='3.6' stroke-linecap='round'/%3E%3C/svg%3E") 16 16, auto; }
